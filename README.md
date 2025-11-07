@@ -5,7 +5,7 @@ A production-ready social media platform API built with Spring Boot, featuring d
 ## Quick Setup
 
 ### Prerequisites
-- Java 17+
+- Java 21+
 - Maven
 - Docker & Docker Compose
 
