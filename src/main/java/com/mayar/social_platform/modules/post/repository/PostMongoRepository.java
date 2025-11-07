@@ -176,6 +176,90 @@ public class PostMongoRepository implements IPostRepository{
         return PageList.of(posts, totalCount, page, limit);
     }
 
+    @Override
+    public Optional<PostDocument> incrementPostLike(String postId) {
+        Optional<PostDocument> postDocument = findById(postId);
+        if (postDocument.isPresent()) {
+            PostDocument post = postDocument.get();
+
+            if (post.getStatus().equals(PostStatus.UNDER_APPROVAL)) {
+                throw new BadRequestException("Post is under approval");
+            }
+
+            Query query = new Query(Criteria.where("_id").is(postId));
+            Update update = new Update();
+            update.set("likesCount",  post.getLikesCount() + 1);
+            update.set("updatedAt",  LocalDateTime.now());
+            mongoTemplate.updateFirst(query, update, collectionName);
+
+            return findById(postId);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<PostDocument> decrementPostLike(String postId) {
+        Optional<PostDocument> postDocument = findById(postId);
+        if (postDocument.isPresent()) {
+            PostDocument post = postDocument.get();
+
+            if (post.getStatus().equals(PostStatus.UNDER_APPROVAL)) {
+                throw new BadRequestException("Post is under approval");
+            }
+
+            Query query = new Query(Criteria.where("_id").is(postId));
+            Update update = new Update();
+            update.set("likesCount",  post.getLikesCount() - 1);
+            update.set("updatedAt",  LocalDateTime.now());
+            mongoTemplate.updateFirst(query, update, collectionName);
+
+            return findById(postId);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<PostDocument> incrementPostComment(String postId) {
+        Optional<PostDocument> postDocument = findById(postId);
+        if (postDocument.isPresent()) {
+            PostDocument post = postDocument.get();
+
+            if (post.getStatus().equals(PostStatus.UNDER_APPROVAL)) {
+                throw new BadRequestException("Post is under approval");
+            }
+
+            Query query = new Query(Criteria.where("_id").is(postId));
+            Update update = new Update();
+            update.set("commentsCount",  post.getCommentsCount() + 1);
+            update.set("updatedAt",  LocalDateTime.now());
+            mongoTemplate.updateFirst(query, update, collectionName);
+
+            return findById(postId);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<PostDocument> decrementPostComment(String postId) {
+        Optional<PostDocument> postDocument = findById(postId);
+        if (postDocument.isPresent()) {
+            PostDocument post = postDocument.get();
+
+            if (post.getStatus().equals(PostStatus.UNDER_APPROVAL)) {
+                throw new BadRequestException("Post is under approval");
+            }
+
+            Query query = new Query(Criteria.where("_id").is(postId));
+            Update update = new Update();
+            update.set("commentsCount",  post.getCommentsCount() - 1);
+            update.set("updatedAt",  LocalDateTime.now());
+            mongoTemplate.updateFirst(query, update, collectionName);
+
+            return findById(postId);
+        }
+        return Optional.empty();
+    }
+
     public long count(PageQuery pageQuery) {
         Query query = getQueryBuilder().buildCountQuery(pageQuery);
         return mongoTemplate.count(query, collectionName);

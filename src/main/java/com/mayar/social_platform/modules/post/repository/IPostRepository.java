@@ -17,5 +17,12 @@ public interface IPostRepository {
 
     PageList<PostDocument> getPosts(PageQuery pageQuery);
 
+    Optional<PostDocument> incrementPostLike(String postId);
+
+    Optional<PostDocument> decrementPostLike(String postId);
+
+    Optional<PostDocument> incrementPostComment(String postId);
+    Optional<PostDocument> decrementPostComment(String postId);
+
     long count(PageQuery pageQuery);
 }

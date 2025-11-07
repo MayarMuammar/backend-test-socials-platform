@@ -1,6 +1,7 @@
 package com.mayar.social_platform.modules.post.repository;
 
 import com.mayar.social_platform.modules.post.entity.PostCommentDocument;
+import com.mayar.social_platform.modules.post.entity.PostLikeDocument;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Profile("mongodb")
@@ -28,6 +30,18 @@ public class PostCommentMongoRepository implements IPostCommentRepository {
                 .build();
         mongoTemplate.save(doc);
         return null;
+    }
+
+    @Override
+    public Optional<PostCommentDocument> getByIdAndUserId(String commentId, String userId) {
+        Query query = new Query(Criteria.where("_id").is(commentId).and("user_id").is(userId));
+        PostCommentDocument doc = mongoTemplate.findOne(query, PostCommentDocument.class);
+
+        if (doc == null) {
+            return Optional.empty();
+        }
+        return Optional.of(doc);
+
     }
 
     @Override

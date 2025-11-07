@@ -32,6 +32,23 @@ Authorization: Bearer {{userToken}}
 GET http://localhost:8080/api/posts/my-posts
 Authorization: Bearer {{userToken}}
 
+### Like a Post
+PUT http://localhost:8080/api/interactions/like/posts/d4c698e2-e400-4db6-97ab-42112afda85a
+Authorization: Bearer {{userToken}}
+
+### Dislike a Post
+PUT http://localhost:8080/api/interactions/unlike/posts/d4c698e2-e400-4db6-97ab-42112afda85a
+Authorization: Bearer {{userToken}}
+
+### Comment on a Post
+PUT http://localhost:8080/api/interactions/comments/posts/d4c698e2-e400-4db6-97ab-42112afda85a
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+  "comment": "Test comment"
+}
+
 ### Admin Login
 POST http://localhost:8080/api/auth/login
 Content-Type: application/json

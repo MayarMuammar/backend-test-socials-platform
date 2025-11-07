@@ -7,6 +7,7 @@ import com.mayar.social_platform.exception.NotFoundException;
 import com.mayar.social_platform.modules.post.dto.CreatePostRequest;
 import com.mayar.social_platform.modules.post.dto.FeedPostResponse;
 import com.mayar.social_platform.modules.post.dto.PostResponse;
+import com.mayar.social_platform.modules.post.entity.Post;
 import com.mayar.social_platform.modules.post.entity.PostDocument;
 import com.mayar.social_platform.modules.post.entity.PostStatus;
 import com.mayar.social_platform.modules.post.mapper.FeedPostMapper;
@@ -78,14 +79,16 @@ public class PostService {
         return PageList.of(responses, postsPage.getTotalItems(), postsPage.getCurrentPage(), postsPage.getLimit());
     }
 
-    public PageList<FeedPostResponse> getMyPosts(PageQuery pageQuery, String authorId) {
+    public PageList<PostResponse> getMyPosts(PageQuery pageQuery, String authorId) {
         pageQuery.getFilter().put("author.id", List.of(
                 Map.of(
                         "operator", "$eq",
                         "value", authorId)));
         PageList<PostDocument> postsPage = postRepository.getPosts(pageQuery);
 
-        List<FeedPostResponse> responses = FeedPostMapper.toResponse(postsPage.getItems());
+        List<PostResponse> responses = postsPage.getItems().stream()
+                .map(PostMapper::toResponse)
+                .toList();
 
         return PageList.of(responses, postsPage.getTotalItems(), postsPage.getCurrentPage(), postsPage.getLimit());
     }

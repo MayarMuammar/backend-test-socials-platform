@@ -159,6 +159,90 @@ public class PostRepository implements IPostRepository {
         return PageList.of(documents, totalCount, page, limit);
     }
 
+    @Override
+    public Optional<PostDocument> incrementPostLike(String postId) {
+        Optional<PostDocument> postOpt = findById(postId);
+
+        if (postOpt.isPresent()) {
+            PostDocument document = postOpt.get();
+
+            if(document.getStatus().equals(PostStatus.UNDER_APPROVAL)) {
+                throw new BadRequestException("Post is not approved yet.");
+            }
+
+            Post post = entityManager.find(Post.class, UUID.fromString(postId));
+            post.setLikesCount(post.getLikesCount() + 1);
+            post.setUpdatedAt(LocalDateTime.now());
+            entityManager.merge(post);
+            return Optional.of(convertToDocument(post));
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<PostDocument> decrementPostLike(String postId) {
+        Optional<PostDocument> postOpt = findById(postId);
+
+        if (postOpt.isPresent()) {
+            PostDocument document = postOpt.get();
+
+            if(document.getStatus().equals(PostStatus.UNDER_APPROVAL)) {
+                throw new BadRequestException("Post is not approved yet.");
+            }
+
+            Post post = entityManager.find(Post.class, UUID.fromString(postId));
+            post.setLikesCount(post.getLikesCount() - 1);
+            post.setUpdatedAt(LocalDateTime.now());
+            entityManager.merge(post);
+            return Optional.of(convertToDocument(post));
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<PostDocument> incrementPostComment(String postId) {
+        Optional<PostDocument> postOpt = findById(postId);
+
+        if (postOpt.isPresent()) {
+            PostDocument document = postOpt.get();
+
+            if(document.getStatus().equals(PostStatus.UNDER_APPROVAL)) {
+                throw new BadRequestException("Post is not approved yet.");
+            }
+
+            Post post = entityManager.find(Post.class, UUID.fromString(postId));
+            post.setCommentsCount(post.getCommentsCount() + 1);
+            post.setUpdatedAt(LocalDateTime.now());
+            entityManager.merge(post);
+            return Optional.of(convertToDocument(post));
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<PostDocument> decrementPostComment(String postId) {
+        Optional<PostDocument> postOpt = findById(postId);
+
+        if (postOpt.isPresent()) {
+            PostDocument document = postOpt.get();
+
+            if(document.getStatus().equals(PostStatus.UNDER_APPROVAL)) {
+                throw new BadRequestException("Post is not approved yet.");
+            }
+
+            Post post = entityManager.find(Post.class, UUID.fromString(postId));
+            post.setCommentsCount(post.getCommentsCount() - 1);
+            post.setUpdatedAt(LocalDateTime.now());
+            entityManager.merge(post);
+            return Optional.of(convertToDocument(post));
+        }
+
+        return Optional.empty();
+    }
+
     public long count(PageQuery pageQuery) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);

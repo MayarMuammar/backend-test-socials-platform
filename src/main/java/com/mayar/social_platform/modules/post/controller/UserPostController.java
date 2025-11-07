@@ -7,6 +7,7 @@ import com.mayar.social_platform.common.pipe.QueryPageTransformPipe;
 import com.mayar.social_platform.common.security.UserPrincipal;
 import com.mayar.social_platform.modules.post.dto.CreatePostRequest;
 import com.mayar.social_platform.modules.post.dto.FeedPostResponse;
+import com.mayar.social_platform.modules.post.dto.PostResponse;
 import com.mayar.social_platform.modules.post.service.PostService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,7 +42,7 @@ public class UserPostController {
 
     @GetMapping("my-posts")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<PageList<FeedPostResponse>> getMyPosts(@RequestParam Map<String, String> params, @CurrentUser UserPrincipal user) {
+    public ResponseEntity<PageList<PostResponse>> getMyPosts(@RequestParam Map<String, String> params, @CurrentUser UserPrincipal user) {
         PageQuery pageQuery = queryPageTransformPipe.transform(params);
         return ResponseEntity.ok(postService.getMyPosts(pageQuery, user.getId()));
     }
