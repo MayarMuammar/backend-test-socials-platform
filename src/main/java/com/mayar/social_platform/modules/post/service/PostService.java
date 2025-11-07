@@ -8,12 +8,15 @@ import com.mayar.social_platform.modules.post.dto.CreatePostRequest;
 import com.mayar.social_platform.modules.post.dto.FeedPostResponse;
 import com.mayar.social_platform.modules.post.dto.PostResponse;
 import com.mayar.social_platform.modules.post.entity.PostDocument;
+import com.mayar.social_platform.modules.post.entity.PostStatus;
 import com.mayar.social_platform.modules.post.mapper.FeedPostMapper;
 import com.mayar.social_platform.modules.post.mapper.PostMapper;
 import com.mayar.social_platform.modules.post.repository.IPostRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -25,6 +28,7 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
+    @Transactional
     public FeedPostResponse createPost(CreatePostRequest request, String userId) {
         PostDocument postDocument =  PostDocument.builder()
                 .content(request.getContent())
@@ -46,6 +50,7 @@ public class PostService {
                 .orElseThrow(() ->  NotFoundException.forResource("Post", postId));
     }
 
+    @Transactional
     public PostResponse approvePost(String postId, String adminUsername) {
         return postRepository.approve(postId, adminUsername)
                 .map(PostMapper::toResponse)
@@ -53,6 +58,7 @@ public class PostService {
 
     }
 
+    @Transactional
     public PostResponse rejectPost(String postId, String rejectionReason, String adminUsername) {
         return postRepository.reject(postId,rejectionReason, adminUsername)
                 .map(PostMapper::toResponse)
@@ -61,6 +67,22 @@ public class PostService {
     }
 
     public PageList<FeedPostResponse> getFeed(PageQuery pageQuery) {
+        pageQuery.getFilter().put("status", List.of(
+                Map.of(
+                        "operator", "$eq",
+                        "value", PostStatus.APPROVED)));
+        PageList<PostDocument> postsPage = postRepository.getPosts(pageQuery);
+
+        List<FeedPostResponse> responses = FeedPostMapper.toResponse(postsPage.getItems());
+
+        return PageList.of(responses, postsPage.getTotalItems(), postsPage.getCurrentPage(), postsPage.getLimit());
+    }
+
+    public PageList<FeedPostResponse> getMyPosts(PageQuery pageQuery, String authorId) {
+        pageQuery.getFilter().put("author.id", List.of(
+                Map.of(
+                        "operator", "$eq",
+                        "value", authorId)));
         PageList<PostDocument> postsPage = postRepository.getPosts(pageQuery);
 
         List<FeedPostResponse> responses = FeedPostMapper.toResponse(postsPage.getItems());

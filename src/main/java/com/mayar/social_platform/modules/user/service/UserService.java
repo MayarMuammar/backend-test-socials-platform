@@ -13,6 +13,7 @@ import com.mayar.social_platform.modules.user.entity.UserRole;
 import com.mayar.social_platform.modules.user.mapper.AuthResponseMapper;
 import com.mayar.social_platform.modules.user.mapper.UserMapper;
 import com.mayar.social_platform.modules.user.repository.IUserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,7 @@ public class UserService {
         this.jwtUtil = jwtUtil;
     }
 
+    @Transactional
     public AuthResponse registerUser(RegisterRequest request) {
 
         if(userRepository.findUserByUsernameOrEmail(request.getEmail()).isPresent()) {
@@ -45,7 +47,7 @@ public class UserService {
                 .email(request.getEmail())
                 .passwordHash(hashedPassword)
                 .fullName(request.getFullName())
-                .role(UserRole.ROLE_USER)
+                .role(UserRole.USER)
                 .build();
 
         UserDocument createdUser = userRepository.createUser(user);
@@ -55,6 +57,7 @@ public class UserService {
         return AuthResponseMapper.toResponse(createdUser, token);
     }
 
+    @Transactional
     public UserResponse registerAdmin(RegisterRequest request, String adminUserName) {
 
         if(userRepository.findUserByUsernameOrEmail(request.getEmail()).isPresent()) {
@@ -72,7 +75,7 @@ public class UserService {
                 .email(request.getEmail())
                 .passwordHash(hashedPassword)
                 .fullName(request.getFullName())
-                .role(UserRole.ROLE_ADMIN)
+                .role(UserRole.ADMIN)
                 .build();
 
         UserDocument createdUser = userRepository.createUser(user);

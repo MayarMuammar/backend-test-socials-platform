@@ -21,7 +21,7 @@ public class PageQuery {
     private Integer limit;
 
     @Builder.Default
-    private String sortBy = "created_at";
+    private String sortBy = "createdAt";
 
     @Builder.Default
     private String sortDirection = "desc";

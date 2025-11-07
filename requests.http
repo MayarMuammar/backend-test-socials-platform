@@ -1,0 +1,70 @@
+### Register
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "mayar2@test.com",
+  "username": "mayar2",
+  "fullName": "Mayar",
+  "password": "1234567"
+}
+
+### Login
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "usernameOrEmail": "mayar2",
+  "password": "1234567"
+}
+
+> {% client.global.set("userToken", response.body.accessToken); %}
+### Create Post
+POST http://localhost:8080/api/posts
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
+
+{
+  "content": "Second post not first"
+}
+
+### Get My Posts
+GET http://localhost:8080/api/posts/my-posts
+Authorization: Bearer {{userToken}}
+
+### Admin Login
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "usernameOrEmail": "admin",
+  "password": "admin123"
+}
+
+> {% client.global.set("adminToken", response.body.accessToken); %}
+
+### Get Feed
+GET http://localhost:8080/api/posts/feed
+
+### Get Posts By Admin
+GET http://localhost:8080/api/admin/posts
+Authorization: Bearer {{adminToken}}
+
+### Get Under Approval Posts By Admin (Moderation Queue)
+GET http://localhost:8080/api/admin/posts?filter.status=eq::UNDER_APPROVAL
+Authorization: Bearer {{adminToken}}
+
+### Approve Post By Admin
+PUT http://localhost:8080/api/admin/posts/d4c698e2-e400-4db6-97ab-42112afda85a/approve
+Authorization: Bearer {{adminToken}}
+
+### Reject Post By Admin
+PUT http://localhost:8080/api/admin/posts/72e945c4-00eb-4158-aa89-dc0749c312d4/reject
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "rejectionReason": "Testing rejection"
+}
+
+###

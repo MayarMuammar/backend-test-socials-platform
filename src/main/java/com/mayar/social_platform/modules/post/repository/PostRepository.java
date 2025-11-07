@@ -14,11 +14,11 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
@@ -49,7 +49,7 @@ public class PostRepository implements IPostRepository {
         return queryBuilder;
     }
 
-    @Transactional
+//    @Transactional
     public PostDocument create(PostDocument document, String userId) {
         Post post = new Post();
         post.setContent(document.getContent());
@@ -75,8 +75,9 @@ public class PostRepository implements IPostRepository {
         Root<Post> root = query.from(Post.class);
 
         // JOIN FETCH to populate user
-        root.fetch("user", JoinType.LEFT);
+        root.fetch("author", JoinType.LEFT);
 
+        query.select(root);
         query.where(
                 cb.equal(root.get("id"), UUID.fromString(id)),
                 cb.equal(root.get("isDeleted"), false)
@@ -90,7 +91,7 @@ public class PostRepository implements IPostRepository {
         }
     }
 
-    @Transactional
+//    @Transactional
     public Optional<PostDocument> approve(String id, String adminUsername) {
         Optional<PostDocument> postOpt = findById(id);
         if (postOpt.isPresent()) {
@@ -111,7 +112,7 @@ public class PostRepository implements IPostRepository {
         return Optional.empty();
     }
 
-    @Transactional
+//    @Transactional
     public Optional<PostDocument> reject(String id, String rejectionReason, String adminUsername) {
         Optional<PostDocument> postOpt = findById(id);
         if (postOpt.isPresent()) {
@@ -137,10 +138,10 @@ public class PostRepository implements IPostRepository {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Post> query = getQueryBuilder().buildQuery(pageQuery);
 
-        Root<Post> root = query.from(Post.class);
+        Root<Post> root = (Root<Post>) query.getRoots().iterator().next();
 
-        root.fetch("user", JoinType.LEFT);
-
+        root.fetch("author", JoinType.LEFT);
+        query.select(root);
         Integer limit = pageQuery.getLimit() != null ? pageQuery.getLimit() : defaultLimit;
         int page = pageQuery.getPage() != null && pageQuery.getPage() > 0 ? pageQuery.getPage() : 1;
         int skip = (page - 1) * limit;

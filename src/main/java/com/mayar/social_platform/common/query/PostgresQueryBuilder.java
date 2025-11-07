@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class PostgresQueryBuilder<T> implements QueryBuilder<CriteriaQuery<T>> {
 
@@ -104,13 +105,13 @@ public class PostgresQueryBuilder<T> implements QueryBuilder<CriteriaQuery<T>> {
                                      Root<T> root, String fieldName,
                                      String operator, Object value) {
         try {
-            Path<Object> path = root.get(fieldName);
+            Path<Object> path = resolvePath(root, fieldName);
 
             switch (operator) {
                 case "$eq":
-                    return value == null ? cb.isNull(path) : cb.equal(path, value);
+                    return value == null ? cb.isNull(path) : cb.equal(path, convertValue(value));
                 case "$ne":
-                    return value == null ? cb.isNotNull(path) : cb.notEqual(path, value);
+                    return value == null ? cb.isNotNull(path) : cb.notEqual(path, convertValue(value));
                 case "$lt":
                     return cb.lessThan(path.as(Comparable.class), (Comparable) convertValue(value));
                 case "$lte":
@@ -165,6 +166,11 @@ public class PostgresQueryBuilder<T> implements QueryBuilder<CriteriaQuery<T>> {
             return null;
         }
         if (value instanceof String strValue) {
+            try{
+                return UUID.fromString(strValue);
+            } catch (IllegalArgumentException e) {
+                // ignored
+            }
             try {
                 return LocalDateTime.parse(strValue);
             } catch (Exception ignored) {
@@ -176,6 +182,18 @@ public class PostgresQueryBuilder<T> implements QueryBuilder<CriteriaQuery<T>> {
         }
 
         return value;
+    }
+
+    private Path<Object> resolvePath(Root<?> root, String fieldName) {
+        if (fieldName.contains(".")) {
+            String[] parts = fieldName.split("\\.");
+            Path<?> path = root.get(parts[0]);
+            for (int i = 1; i < parts.length; i++) {
+                path = path.get(parts[i]);
+            }
+            return (Path<Object>) path;
+        }
+        return root.get(fieldName);
     }
 
 

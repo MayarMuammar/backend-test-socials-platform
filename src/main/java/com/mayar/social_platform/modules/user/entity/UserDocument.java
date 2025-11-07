@@ -29,5 +29,5 @@ public class UserDocument extends BaseDocument {
     private String fullName;
 
     @Field("role")
-    private UserRole role = UserRole.ROLE_USER;
+    private UserRole role = UserRole.USER;
 }

@@ -7,6 +7,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
+import jakarta.transaction.Transactional;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -17,10 +18,16 @@ import java.util.UUID;
 @Profile("postgres")
 public class UserRepository implements IUserRepository{
 
-    @PersistenceContext
+
     private EntityManager entityManager;
 
+    @PersistenceContext
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
+
     @Override
+//    @Transactional
     public UserDocument createUser(UserDocument userDocument) {
         User user = new User();
         user.setUsername(userDocument.getUsername());
