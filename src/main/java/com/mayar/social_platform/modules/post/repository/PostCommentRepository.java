@@ -22,8 +22,12 @@ import java.util.UUID;
 @Profile("postgres")
 public class PostCommentRepository implements IPostCommentRepository {
 
-    @PersistenceContext
     private EntityManager entityManager;
+
+    @PersistenceContext
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 
     @Override
     public PostCommentDocument createComment(String postId, String userId, String content) {
