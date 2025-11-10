@@ -20,7 +20,9 @@ public class PostLikeRepository implements IPostLikeRepository {
     private EntityManager entityManager;
 
     @PersistenceContext
-    public void setEntityManager(EntityManager entityManager) {}
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 
     @Override
     public boolean existsByPostIdAndUserId(String postId, String userId) {
